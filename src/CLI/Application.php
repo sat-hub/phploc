@@ -16,7 +16,6 @@ use Cmgmyr\PHPLOC\Log\Json as JsonPrinter;
 use Cmgmyr\PHPLOC\Log\Text as TextPrinter;
 use Cmgmyr\PHPLOC\Log\Xml as XmlPrinter;
 use SebastianBergmann\FileIterator\Facade;
-use SebastianBergmann\Version;
 
 final class Application
 {
@@ -46,12 +45,17 @@ final class Application
             return 0;
         }
 
-        $files = (new Facade)->getFilesAsArray(
-            $arguments->directories(),
-            $arguments->suffixes(),
-            '',
-            $arguments->exclude()
-        );
+        $files = [];
+
+        foreach ($arguments->directories() as $directory) {
+            $newFiles = (new Facade)->getFilesAsArray(
+                $directory,
+                $arguments->suffixes(),
+                '',
+                $arguments->exclude()
+            );
+            $files = $files + $newFiles;
+        }
 
         if (empty($files)) {
             print 'No files found to scan' . PHP_EOL;
@@ -88,7 +92,7 @@ final class Application
     {
         printf(
             'phploc %s by Chris Gmyr.' . PHP_EOL,
-            (new Version(self::VERSION, dirname(__DIR__)))->getVersion()
+            self::VERSION
         );
     }
 
